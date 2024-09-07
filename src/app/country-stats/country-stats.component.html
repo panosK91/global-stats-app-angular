@@ -1,0 +1,116 @@
+<div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-lg shadow-lg">
+  <div class="flex justify-between items-center mb-4 mt-4">
+    <button (click)="goBack()"
+    class="text-white bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 
+    focus:ring-2 focus:ring-blue-300 focus:outline-none font-medium text-sm px-3 py-1.5 rounded-md shadow-md 
+    transition-transform transform hover:scale-105">
+    ←
+  </button>
+
+  <!-- Search Input -->
+  <input type="text" [(ngModel)]="searchQuery" (input)="searchCountries()" placeholder="Search"
+         class="w-full border p-2 rounded-lg ml-4">
+</div>
+    <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
+        <label for="region" class="text-lg font-semibold text-gray-700">Region:</label>
+        <!-- Region Dropdown -->
+        <select id="region" [(ngModel)]="selectedValue" class="p-2 border border-gray-300 rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="" disabled>Select a region</option>
+            @for (region of regions; track region; let i = $index;) {
+                <option [value]="region" class="py-3 text-lg text-gray-600">
+                  {{ region }}
+                </option>
+            }
+        </select>
+
+        <!-- Clear Button -->
+        <button (click)="clearSelection()" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-2 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-300">
+            Clear Selection
+        </button>
+    </div>
+  
+    <!-- Start Year Input -->
+    <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
+      <label for="startYear" class="text-lg font-semibold text-gray-700">From Year:</label>
+      <input type="number" id="startYear" [(ngModel)]="fromYear" class="p-2 border border-gray-300 rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="YYYY" min="1900" max="2100">
+    </div>
+  
+    <!-- End Year Input -->
+    <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
+      <label for="endYear" class="text-lg font-semibold text-gray-700">To Year:</label>
+      <input type="number" id="endYear" [(ngModel)]="toYear" class="p-2 border border-gray-300 rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="YYYY" min="1900" max="2100">
+    </div>
+  
+    <!-- Apply Filters Button -->
+    <button (click)="applyFilters()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+      Apply Filters
+    </button>
+</div>
+
+<!-- Table to display filtered countries -->
+<table class="w-full border-4 mt-4">
+    <thead>
+      <tr>
+        <th class="p-3 text-left bg-gray-200">#</th>
+        <th class="p-3 text-left bg-gray-200">Continent Name</th>
+        <th class="p-3 text-left bg-gray-200">Region Name</th>
+        <th class="p-3 text-left bg-gray-200">Country Name</th>
+        <th class="p-3 text-left bg-gray-200">Year</th>
+        <th class="p-3 text-left bg-gray-200">Population</th>
+        <th class="p-3 text-left bg-gray-200">GDP</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Use @for loop with filteredCountries -->
+      @for (country of filteredCountries; track country; let i = $index;) {
+        <tr class="border-2">
+          <td class="p-3 border-2">{{ i + 1 }}</td>
+          <td class="p-3 border-2">{{ country.continentName }}</td>
+          <td class="p-3 border-2">{{ country.regionName }}</td>
+          <td class="p-3 border-2">{{ country.countryName }}</td>
+          <td class="p-3 border-2">{{ country.year }}</td>
+          <td class="p-3 border-2">{{ country.population }}</td>
+          <td class="p-3 border-2">{{ country.gdp }}</td>        
+        </tr>
+      }
+    </tbody>
+</table>
+
+<!-- Rows Per Page and Pagination Controls -->
+<div class="mt-4 flex items-center justify-center space-x-2">
+  <!-- Rows per page selection -->
+  <div>
+    <label for="rowsPerPage" class="mr-2 text-gray-700">Rows per page:</label>
+    <select id="rowsPerPage" [(ngModel)]="itemsPerPage" (change)="setRowsPerPage(itemsPerPage)"
+            class="p-2 border border-gray-300 rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      @for (rows of rowsPerPageOptions; track rows; let i = $index;) {
+        <option [value]="rows">{{ rows }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Previous Button -->
+  <button (click)="previousPage()"
+          [disabled]="currentPage === 1"
+          class="text-cyan-500 border-4 py-2 px-4 rounded-l-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+    Previous
+  </button>
+
+  <!-- Page Dropdown for selecting pages -->
+  <div>
+    <label for="pageSelect" class="mr-2 text-gray-700">Page:</label>
+    <select id="pageSelect" [(ngModel)]="currentPage" (change)="setPage(currentPage)"
+            class="p-2 border border-gray-300 rounded-lg bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      @for (page of pagesArray; track page; let i = $index;) {
+        <option [value]="page">Page {{ page }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Next Button -->
+  <button (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+          class="text-cyan-500 border-4 py-2 px-4 rounded-r-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+    Next
+  </button>
+</div>
